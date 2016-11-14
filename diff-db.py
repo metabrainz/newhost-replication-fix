@@ -8,4 +8,4 @@ NEW_DB = "musicbrainz_new_db"
 OUT_DIR = "out"
 
 for table in sorted(REPLICATED_TABLES.iterkeys()):
-    subprocess.call(["diff-setup.sh", OLD_DB, NEW_DB, table, OUT_DIR])
+    subprocess.call(["./diff-setup.sh", OLD_DB, NEW_DB, table, OUT_DIR])
