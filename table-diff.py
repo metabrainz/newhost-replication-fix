@@ -19,9 +19,9 @@ if not f:
     print "cannot open diff file"
     sys.exit(-1)
 
+delete_lines = []
 copy_lines = []
 
-print "BEGIN;"
 while True:
     line = f.readline()
     if not line:
@@ -36,14 +36,21 @@ while True:
         columns = line.split('\t')
         columns[0] = columns[0][1:]
         id = int(columns[0])
-        print "DELETE FROM %s WHERE id = %d;" % (table, id)
+        delete_lines.append("DELETE FROM %s WHERE id = %d;" % (table, id))
         continue
 
     if p_plus.match(line):
         copy_lines.append(line)
 
 f.close()
-print "COMMIT;"
-print "\COPY %s from stdin" % table
-for line in copy_lines:
-    print line[1:]
+
+if delete_lines:
+    print "BEGIN;"
+    for line in delete_lines:
+        print line
+    print "COMMIT;"
+
+if copy_lines:
+    print "\COPY %s from stdin" % table
+    for line in copy_lines:
+        print line[1:]

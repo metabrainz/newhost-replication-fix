@@ -13,5 +13,6 @@ diff -Naur /tmp/$TABLE-old-sorted.sql /tmp/$TABLE-new-sorted.sql > /tmp/$TABLE.d
 
 mkdir -p "$OUT_DIR"
 ./table-diff.py $TABLE /tmp/$TABLE.diff > "$OUT_DIR/$TABLE.sql"
+[ ! -s "$OUT_DIR/$TABLE.sql" ] && rm -f "$OUT_DIR/$TABLE.sql"
 
 rm -f /tmp/$TABLE-old.sql /tmp/$TABLE-new.sql /tmp/$TABLE-old-sorted.sql /tmp/$TABLE-new-sorted.sql 
