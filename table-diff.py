@@ -2,6 +2,7 @@
 
 import sys
 import re
+from table_info import REPLICATED_TABLES
 
 p_minus = re.compile('-[0-9]+')
 p_plus = re.compile('\+[0-9]+')
