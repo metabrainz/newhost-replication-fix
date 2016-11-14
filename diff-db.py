@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import subprocess
 from table_info import REPLICATED_TABLES
 
 OLD_DB = "musicbrainz_old_db"
