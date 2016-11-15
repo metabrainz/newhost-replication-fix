@@ -4,7 +4,7 @@ import subprocess
 from table_info import REPLICATED_TABLES
 
 OLD_DB = "musicbrainz_old_db"
-NEW_DB = "musicbrainz_new_db"
+NEW_DB = "musicbrainz_db_20110516"
 OUT_DIR = "out"
 
 for table in sorted(REPLICATED_TABLES.iterkeys()):
