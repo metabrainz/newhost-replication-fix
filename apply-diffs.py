@@ -90,16 +90,20 @@ for diff in DIFFS:
         if columns[0].startswith('SELECT pg_catalog.setval'):
             continue
 
-        keys = {}
-        for pk in REPLICATED_TABLES[fulltable]:
-            column_name, column_position, data_type, is_nullable = pk
-            keys[column_name] = unescape(columns[column_position - 1])
-
         if p_minus.match(line):
+            keys = {}
+            for pk in REPLICATED_TABLES[fulltable]:
+                column_name, column_position, data_type, is_nullable, constraint_type = pk
+                if constraint_type == "PRIMARY KEY":
+                    keys[column_name] = unescape(columns[column_position - 1])
             delete_line(cursor, fulltable, keys)
 
         if p_plus.match(line):
-            insert_line(cursor, fulltable, keys)
+            values = {}
+            for pk in REPLICATED_TABLES[fulltable]:
+                column_name, column_position, data_type, is_nullable, constraint_type = pk
+                values[column_name] = unescape(columns[column_position - 1])
+            insert_line(cursor, fulltable, values)
 
     cursor.close()
 

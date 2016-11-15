@@ -1,17 +1,25 @@
-SELECT tc.table_schema,
-       tc.table_name,
-       array_agg(array[kc.column_name :: text, c.ordinal_position :: text, c.data_type :: text, c.is_nullable :: text]) AS table_columns
-FROM information_schema.table_constraints tc,
-     information_schema.key_column_usage kc,
-     information_schema.columns c
-WHERE tc.constraint_type = 'PRIMARY KEY' AND
-      kc.table_name = tc.table_name AND
-      kc.table_schema = tc.table_schema AND
-      kc.constraint_name = tc.constraint_name AND
-      kc.table_name = c.table_name AND
-      kc.table_schema = c.table_schema AND
-      kc.column_name = c.column_name AND
-      (kc.table_schema || '.' || kc.table_name) IN (
+SELECT c.table_schema,
+       c.table_name,
+       array_agg(array[
+            c.column_name :: text,
+            c.ordinal_position :: text,
+            c.data_type :: text,
+            c.is_nullable :: text,
+            COALESCE(tc.constraint_type, '') :: text
+        ]) AS table_columns
+FROM information_schema.columns c
+LEFT JOIN information_schema.key_column_usage kc ON (
+    kc.table_name = c.table_name AND
+    kc.table_schema = c.table_schema AND
+    kc.column_name = c.column_name
+)
+LEFT JOIN information_schema.table_constraints tc ON (
+    tc.constraint_type = 'PRIMARY KEY' AND
+    tc.table_name = kc.table_name AND
+    tc.table_schema = kc.table_schema AND
+    tc.constraint_name = kc.constraint_name
+)
+WHERE (c.table_schema || '.' || c.table_name) IN (
         'cover_art_archive.art_type',
         'cover_art_archive.cover_art',
         'cover_art_archive.cover_art_type',
@@ -317,5 +325,5 @@ WHERE tc.constraint_type = 'PRIMARY KEY' AND
         'statistics.statistic_event',
         'wikidocs.wikidocs_index'
     )
-GROUP BY tc.table_schema, tc.table_name
-ORDER BY tc.table_schema, tc.table_name;
+GROUP BY c.table_schema, c.table_name
+ORDER BY c.table_schema, c.table_name;
