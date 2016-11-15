@@ -1,6 +1,6 @@
 SELECT tc.table_schema,
        tc.table_name,
-       array_agg(array[kc.column_name :: text, c.ordinal_position :: text]) AS table_columns
+       array_agg(array[kc.column_name :: text, c.ordinal_position :: text, c.data_type :: text, c.is_nullable :: text]) AS table_columns
 FROM information_schema.table_constraints tc,
      information_schema.key_column_usage kc,
      information_schema.columns c
