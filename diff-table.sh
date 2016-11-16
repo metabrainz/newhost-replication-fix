@@ -7,8 +7,8 @@ TABLE=$3
 TMP=/tmp/newhost-replication-fix
 mkdir -p $TMP
 
-pg_dump -U musicbrainz_user -t $TABLE -a -f $TMP/$TABLE-old.sql $OLD_DB
-pg_dump -U musicbrainz_user -t $TABLE -a -f $TMP/$TABLE-new.sql $NEW_DB
+pg_dump -U postgres -t $TABLE -a -f $TMP/$TABLE-old.sql $OLD_DB
+pg_dump -U postgres -t $TABLE -a -f $TMP/$TABLE-new.sql $NEW_DB
 sort $TMP/$TABLE-old.sql > $TMP/$TABLE-old-sorted.sql
 sort $TMP/$TABLE-new.sql > $TMP/$TABLE-new-sorted.sql
 
