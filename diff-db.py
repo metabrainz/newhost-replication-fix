@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
 import subprocess
+import sys
 from table_info import REPLICATED_TABLES
 
-OLD_DB = "musicbrainz_old_db"
-NEW_DB = "musicbrainz_db_20110516"
-OUT_DIR = "out"
+if len(sys.argv) < 3:
+    print "Specify two database names to compare."
+
+OLD_DB = sys.argv[1]
+NEW_DB = sys.argv[2]
 
 for table in sorted(REPLICATED_TABLES.iterkeys()):
-    subprocess.call(["./diff-setup.sh", OLD_DB, NEW_DB, table, OUT_DIR])
+    subprocess.call(["./diff-table.sh", OLD_DB, NEW_DB, table])
