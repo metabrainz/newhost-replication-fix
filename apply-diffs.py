@@ -11,7 +11,12 @@ import tarfile
 from table_info import REPLICATED_TABLES
 
 
-old_db = psycopg2.connect('dbname=musicbrainz_old_db user=musicbrainz_user host=127.0.0.1 port=5432')
+if len(sys.argv) < 3:
+    print "Usage: %s <database> <table> <diff file>" % sys.argv[0]
+    sys.exit(-1)
+
+
+old_db = psycopg2.connect('dbname=%s user=musicbrainz_user host=127.0.0.1 port=5432' % sys.argv[1])
 
 
 COLUMN_INFO = {}
@@ -136,10 +141,6 @@ def process_tar(fname):
 p_minus = re.compile('-[0-9]+')
 p_plus = re.compile('\+[0-9]+')
 
-if len(sys.argv) < 2:
-    print "Usage: %s <table> <diff file>" % sys.argv[0]
-    sys.exit(-1)
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
 subtract_dir = os.path.join(current_dir, "subtract")
 
@@ -151,7 +152,7 @@ if os.path.isdir(subtract_dir):
 
 print pprint.pprint(PACKET_CHANGES)
 
-DIFFS = sys.argv[1:]
+DIFFS = sys.argv[2:]
 
 for diff in DIFFS:
     f = codecs.open(diff, 'r', 'utf-8')
