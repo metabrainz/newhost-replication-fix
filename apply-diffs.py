@@ -164,6 +164,7 @@ for diff in DIFFS:
         print "cannot open diff file"
         sys.exit(-1)
 
+    skipped_deletes = {}
     fulltable = os.path.splitext(os.path.basename(diff))[0]
     cursor = old_db.cursor()
     while True:
@@ -201,14 +202,20 @@ for diff in DIFFS:
         if packet_changes:
             # If the entity was inserted, updated, or deleted in a later packet,
             # we can skip any changes to that entity (the end result will be
-            # the same) UNLESS the entity was inserted in the full diff but not
+            # the same) UNLESS the entity was added in the full diff but not
             # in the later packets. (It must be created for later operations to
             # work.)
             if not (p_plus.match(line) and not 'i' in packet_changes):
                 if p_minus.match(line):
                     print ('skipping DELETE', fulltable, keys)
+                    # Since we only have -/+ in the diff, if we skip a deletion
+                    # we have to skip the corresponding insertion too (because
+                    # together they represent an UPDATE).
+                    skipped_deletes.setdefault(fulltable, {})[keys] = True
                 if p_plus.match(line):
                     print ('skipping INSERT', fulltable, keys)
+                continue
+            if p_plus.match(line) and keys in skipped_deletes.get(fulltable, {}):
                 continue
 
         if p_minus.match(line):
