@@ -1,10 +1,13 @@
 #!/bin/bash
 
-psql -U musicbrainz_user -c 'TRUNCATE dbmirror_Pending CASCADE' musicbrainz_old_db
-psql -U musicbrainz_user -c 'TRUNCATE dbmirror_PendingData CASCADE' musicbrainz_old_db
-psql -U musicbrainz_user -f sql/caa/DropReplicationTriggers.sql musicbrainz_old_db
-psql -U musicbrainz_user -f sql/documentation/DropReplicationTriggers.sql musicbrainz_old_db
-psql -U musicbrainz_user -f sql/DropReplicationTriggers.sql musicbrainz_old_db
-psql -U musicbrainz_user -f sql/statistics/DropReplicationTriggers.sql musicbrainz_old_db
-psql -U musicbrainz_user -f sql/wikidocs/DropReplicationTriggers.sql musicbrainz_old_db
-psql -U postgres -f sql/DropReplicationFunction.sql musicbrainz_old_db
+USER="$1"
+DBNAME="$2"
+
+psql -U "$USER" -c 'TRUNCATE dbmirror_Pending CASCADE' "$DBNAME"
+psql -U "$USER" -c 'TRUNCATE dbmirror_PendingData CASCADE' "$DBNAME"
+psql -U "$USER" -f sql/caa/DropReplicationTriggers.sql "$DBNAME"
+psql -U "$USER" -f sql/documentation/DropReplicationTriggers.sql "$DBNAME"
+psql -U "$USER" -f sql/DropReplicationTriggers.sql "$DBNAME"
+psql -U "$USER" -f sql/statistics/DropReplicationTriggers.sql "$DBNAME"
+psql -U "$USER" -f sql/wikidocs/DropReplicationTriggers.sql "$DBNAME"
+psql -U postgres -f sql/DropReplicationFunction.sql "$DBNAME"

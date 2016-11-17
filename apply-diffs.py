@@ -11,12 +11,12 @@ import tarfile
 from table_info import REPLICATED_TABLES
 
 
-if len(sys.argv) < 3:
-    print "Usage: %s <database> <table> <diff file>" % sys.argv[0]
+if len(sys.argv) < 4:
+    print "Usage: %s <user> <database> <table> <diff files>" % sys.argv[0]
     sys.exit(-1)
 
 
-old_db = psycopg2.connect('dbname=%s user=musicbrainz_user host=127.0.0.1 port=5432' % sys.argv[1])
+old_db = psycopg2.connect('user=%s dbname=%s host=127.0.0.1 port=5432' % (sys.argv[1], sys.argv[2]))
 
 
 def fqn(schema, table):
@@ -156,7 +156,7 @@ if os.path.isdir(subtract_dir):
 
 print pprint.pprint(PACKET_CHANGES)
 
-DIFFS = sys.argv[2:]
+DIFFS = sys.argv[3:]
 
 for diff in DIFFS:
     f = codecs.open(diff, 'r', 'utf-8')
