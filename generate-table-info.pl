@@ -10,7 +10,7 @@ for my $field (@FIELDS) {
     my ($schema, $table, $primary_keys) = split "\t", $field;
 
     $primary_keys =~ s/^{(.+)}$/(\1,)/;
-    $primary_keys =~ s/{([^,]+),([^,]+),"?([^,]+?)"?,([^,]+),"?([^,]*?)"?}/("\1",\2,"\3","\4","\5")/g;
+    $primary_keys =~ s/{([^,]+),([^,]+),(True|False)}/("\1",\2,\3)/g;
 
     print $fh "\t\"$schema.$table\": $primary_keys,\n";
 }

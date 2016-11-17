@@ -19,10 +19,14 @@ if len(sys.argv) < 3:
 old_db = psycopg2.connect('dbname=%s user=musicbrainz_user host=127.0.0.1 port=5432' % sys.argv[1])
 
 
+def fqn(schema, table):
+    return '%s.%s' % (schema, table)
+
+
 COLUMN_INFO = {}
 for table, columns in REPLICATED_TABLES.iteritems():
     for column in columns:
-        COLUMN_INFO[table + '.' + column[0]] = column[1:]
+        COLUMN_INFO[fqn(table, column[0])] = column[1:]
 
 
 # Used to keep track of changes to rows (read: primary keys) in all replication
@@ -80,10 +84,6 @@ def parse_name(table):
     return schema, table
 
 
-def fqn(schema, table):
-    return '%s.%s' % (schema, table)
-
-
 def insert_line(cursor, fulltable, values):
     sql_columns = ', '.join(i[0] for i in values)
     sql_values = ', '.join(['%s'] * len(values))
@@ -121,7 +121,11 @@ class PacketImporter(object):
             for id, schema, table, type in sorted(transaction):
                 fulltable = fqn(schema, table)
                 keys = self._data.get((id, True), tuple())
-                PACKET_CHANGES.setdefault(fulltable, {}).setdefault(keys, []).append(type)
+                # keys are only available for updates and deletes.
+                if type == 'i':
+                    values = self._data.get((id, False), tuple())
+                    keys = tuple(v for v in values if COLUMN_INFO[fqn(fulltable, v[0])][1])
+                PACKET_CHANGES.setdefault(fulltable, {}).setdefault(keys, set()).add(type)
 
 
 def process_tar(fname):
@@ -185,10 +189,10 @@ for diff in DIFFS:
 
         keys = {}
         values = {}
-        for pk in REPLICATED_TABLES[fulltable]:
-            column_name, column_position, data_type, is_nullable, constraint_type = pk
+        for column_info in REPLICATED_TABLES[fulltable]:
+            column_name, column_position, is_pkey = column_info
             values[column_name] = unescape(columns[column_position - 1])
-            if constraint_type == "PRIMARY KEY":
+            if is_pkey:
                 keys[column_name] = values[column_name]
 
         keys = tuple(sorted(keys.iteritems()))
