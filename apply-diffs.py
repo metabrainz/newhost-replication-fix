@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import pprint
 import codecs
@@ -36,7 +37,7 @@ PACKET_CHANGES = {}
 
 
 ## Code adapted from mbslave with some modifications.
-## Copyright (C) 2010-2015  Lukas Lalinksy
+## Copyright (C) 2010-2015  Lukáš Lalinský
 ## https://bitbucket.org/lalinsky/mbslave/raw/e86f415/mbslave-sync.py
 
 def parse_data_fields(s):
