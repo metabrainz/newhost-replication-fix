@@ -116,16 +116,23 @@ class PacketImporter(object):
             transaction = self._transactions.setdefault(xid, [])
             transaction.append((id, schema, table, type))
 
+    def get_keys(self, id, key, fulltable):
+        # For updates and deletes, it seems that the packets also include
+        # foreign keys in the key data. This is bad, since we only use
+        # primary keys for matching packet changes to changes in the full
+        # diff. We can safely remove those columns from the key data, because
+        # the primary key is sufficient for identifying a row.
+        values = self._data.get((id, key), tuple())
+        return tuple(v for v in values if COLUMN_INFO[fqn(fulltable, v[0])][1])
+
     def process(self):
         for xid in sorted(self._transactions.keys()):
             transaction = self._transactions[xid]
             for id, schema, table, type in sorted(transaction):
                 fulltable = fqn(schema, table)
-                keys = self._data.get((id, True), tuple())
-                # keys are only available for updates and deletes.
-                if type == 'i':
-                    values = self._data.get((id, False), tuple())
-                    keys = tuple(v for v in values if COLUMN_INFO[fqn(fulltable, v[0])][1])
+                # key data is not provided for inserts, but we can just filter
+                # the insert values.
+                keys = self.get_keys(id, type != 'i', fulltable)
                 PACKET_CHANGES.setdefault(fulltable, {}).setdefault(keys, set()).add(type)
 
 
@@ -206,6 +213,12 @@ for diff in DIFFS:
             # the same) UNLESS the entity was added in the full diff but not
             # in the later packets. (It must be created for later operations to
             # work.)
+            # XXX p_plus.match(line) technically does not indicate an "addition."
+            # It could be part of an UPDATE. But that just means we may keep
+            # some unnecessary updates in our packet, which shouldn't cause
+            # problems down the line. If there's an INSERT in the packet, it
+            # couldn't (hopefully) be the case that the same primary key was
+            # deleted and then inserted again.
             if not (p_plus.match(line) and not 'i' in packet_changes):
                 if p_minus.match(line):
                     print ('skipping DELETE', fulltable, keys)
