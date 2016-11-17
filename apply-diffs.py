@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pprint
 import codecs
 import os
 import os.path
@@ -148,6 +149,8 @@ if os.path.isdir(subtract_dir):
     for f in fnames:
         process_tar(os.path.join(subtract_dir, f))
 
+print pprint.pprint(PACKET_CHANGES)
+
 DIFFS = sys.argv[1:]
 
 for diff in DIFFS:
@@ -197,6 +200,10 @@ for diff in DIFFS:
             # in the later packets. (It must be created for later operations to
             # work.)
             if not (p_plus.match(line) and not 'i' in packet_changes):
+                if p_minus.match(line):
+                    print ('skipping DELETE', fulltable, keys)
+                if p_plus.match(line):
+                    print ('skipping INSERT', fulltable, keys)
                 continue
 
         if p_minus.match(line):
