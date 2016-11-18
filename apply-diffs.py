@@ -193,9 +193,6 @@ for diff in DIFFS:
         if columns[0].startswith('SELECT pg_catalog.setval'):
             continue
 
-        if not (p_minus.match(line) or p_plus.match(line)):
-            continue
-
         keys = {}
         values = {}
         for column_info in REPLICATED_TABLES[fulltable]:
