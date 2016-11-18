@@ -172,6 +172,10 @@ for diff in DIFFS:
         print "cannot open diff file"
         sys.exit(-1)
 
+    # Skip the header.
+    f.readline()
+    f.readline()
+
     skipped_deletes = {}
     fulltable = os.path.splitext(os.path.basename(diff))[0]
     cursor = old_db.cursor()
