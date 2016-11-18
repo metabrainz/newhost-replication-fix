@@ -150,8 +150,8 @@ def process_tar(fname):
 ## End mbslave code.
 
 
-p_minus = re.compile('-[0-9]+')
-p_plus = re.compile('\+[0-9]+')
+p_minus = re.compile('^-')
+p_plus = re.compile('^\+')
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 subtract_dir = os.path.join(current_dir, "subtract")
